@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 1338
 
 # Comando por defecto para iniciar la aplicación
-CMD ["npm", "./dist/server.js"]
+CMD ["npm", "start"]

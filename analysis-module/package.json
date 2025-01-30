@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node ./dist/analysis-module.js",
+    "start": "node dist/server.js",
     "build": "tsc"
   },
   "dependencies": {
