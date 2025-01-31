@@ -15,19 +15,6 @@ const clientAi = new openai({
 
 const ajv = new Ajv();
 
-async function sendDataToServer(data: any) {
-  try {
-    const response = await axios.post("http://localhost:3000/api/submit", data, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    console.log("Respuesta del servidor:", response.data);
-  } catch (error) {
-    console.error("Error al enviar datos al servidor:", error);
-  }
-}
-
 function generateSchema(pregunta: string) {
   return {
     type: "object",
@@ -51,41 +38,6 @@ function generateSchema(pregunta: string) {
   };
 }
 
-/*function generateSchemaFull(element: string, pregunta: string) {
-  const properties: Record<string, any> = {};
-
-  // Generar el esquema dinámico
-  properties[element] = {
-    type: "object", // Asegúrate de que 'element' sea un objeto
-    properties: {
-      pregunta: { const: pregunta },
-      progreso: { type: "string", enum: ["SI", "NO"] },
-      porcentaje: { type: "string" },
-      Observaciones: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            criterio: { type: "string" },
-            detalle: { type: "string" },
-          },
-          required: ["criterio", "detalle"],
-        },
-      },
-    },
-    required: ["pregunta", "progreso", "porcentaje", "Observaciones"], // Las propiedades son obligatorias
-  };
-
-  // Construir el esquema completo de JSON
-  const esquemaGenerado = {
-    type: "object",
-    properties: properties,
-    required: [element],
-  };
-
-  return esquemaGenerado; // Devuelve el esquema completo
-}
- */
 //Generamos esquema dinamico
 function generateInstruction(
   element: string,
@@ -166,6 +118,7 @@ async function getChatResponse(
   esquemaGenerado: any,
   room: string
 ) {
+  let errorCount = 0;
   try {
     const response = await askChatGPT(imageUrls, instruction);
     console.log(response);
@@ -175,13 +128,29 @@ async function getChatResponse(
 
     return validJSON; //deberia ir la estructura que queremos guardar
   } catch (error) {
+    errorCount++; // Incrementamos el contador de errores
+    console.error("Error en la primera ejecución:", error);
+
+    if (errorCount >= 2) {
+      console.error("❌ Se alcanzaron 2 errores, deteniendo la ejecución...");
+      process.exit(1); // 🔥 Mata el proceso completamente
+    }
+
     try {
+      console.log("Reintentando...");
       const response = await askChatGPT(imageUrls, instruction);
       const validJSON = await validateJSON(response, esquemaGenerado);
-      console.log("El objeto de la" + room + " se analizo exitosamente");
-      return validJSON; //deberia ir la estructura que queremos guardar
+      console.log("El objeto de la " + room + " se analizó exitosamente");
+      return validJSON; // Debería ir la estructura que queremos guardar
     } catch (error) {
-      console.error("Error getting chat response:", error);
+      errorCount++; // Incrementamos nuevamente el contador de errores
+      console.error("Error en el segundo intento:", error);
+
+      if (errorCount >= 2) {
+        console.error("❌ Se alcanzaron 2 errores, deteniendo la ejecución...");
+        process.exit(1);
+      }
+
       throw new Error("Error getting chat response");
     }
   }
@@ -218,34 +187,39 @@ async function validateJSON(content: string, esquemaGenerado: any) {
 }
 
 async function executeAnalysisOnRoom(objectRoom: ObjectRoom): Promise<any[]> {
-  console.log(`🔎 Analizando objeto: ${objectRoom.objectAnalisis} en ${objectRoom.room}`); //testing
-  const jsonResponseArray: any[] = []; // Array para almacenar respuestas
-  for (var i = 0; i < objectRoom.questionObject.length; i++) {
-    console.log("Generando pregunta numero :" + i);
-    const question = objectRoom.questionObject.map((q) => q.question);
-    console.log(question[i]);
-    const imgs = objectRoom.questionObject.map((q) => q.imgs);
-    const schema = generateSchema(question[i]);
-    // console.log(schema); //test line
+  try {
+    console.log(`🔎 Analizando objeto: ${objectRoom.objectAnalisis} en ${objectRoom.room}`); //testing
+    const jsonResponseArray: any[] = []; // Array para almacenar respuestas
+    for (var i = 0; i < objectRoom.questionObject.length; i++) {
+      console.log("Generando pregunta numero :" + i);
+      const question = objectRoom.questionObject.map((q) => q.question);
+      console.log(question[i]);
+      const imgs = objectRoom.questionObject.map((q) => q.imgs);
+      const schema = generateSchema(question[i]);
+      // console.log(schema); //test line
 
-    const instruction = generateInstruction(
-      objectRoom.objectAnalisis,
-      schema,
-      objectRoom.room,
-      question[i]
-    );
+      const instruction = generateInstruction(
+        objectRoom.objectAnalisis,
+        schema,
+        objectRoom.room,
+        question[i]
+      );
 
-    const jsonResponse = await getChatResponse(imgs[i], instruction, schema, objectRoom.room);
-    console.log("RESPUESTA NUMERO " + i + "\n" + JSON.stringify(jsonResponse, null, 2));
-    jsonResponseArray.push(jsonResponse);
-    //sendDataToDataBase(jsonResponse);
-    //ACA TIENE QUE IR EL PUSH DE RESPUESTAS
-    //sendDataToServer(jsonResponse); //solo testeo
+      const jsonResponse = await getChatResponse(imgs[i], instruction, schema, objectRoom.room);
+      console.log("RESPUESTA NUMERO " + i + "\n" + JSON.stringify(jsonResponse, null, 2));
+      jsonResponseArray.push(jsonResponse);
+      //sendDataToDataBase(jsonResponse);
+      //ACA TIENE QUE IR EL PUSH DE RESPUESTAS
+      //sendDataToServer(jsonResponse); //solo testeo
+    }
+    console.log("RESPUESTA DEL JSON RESPONSE");
+    console.log("RESPUESTA DEL JSON RESPONSE");
+    console.log(JSON.stringify(jsonResponseArray));
+    return jsonResponseArray;
+  } catch (error) {
+    console.error("❌ Error crítico, deteniendo ejecución:", error);
+    process.exit(1); // 🔥 Mata el proceso completamente
   }
-  console.log("RESPUESTA DEL JSON RESPONSE");
-  console.log("RESPUESTA DEL JSON RESPONSE");
-  console.log(JSON.stringify(jsonResponseArray));
-  return jsonResponseArray;
 }
 
 interface ObjectRoom {
@@ -413,10 +387,9 @@ export async function triggerAnalysis_Module(jsonData: any) {
 
   const updatedJSON = addChatGPTResponseToJSON(jsonData, objectRoomArray, responses);
   const outputFilePath = path.join(__dirname, "json_resultado.json");
-  sendDataToServer(updatedJSON);
+  // sendDataToServer(updatedJSON);
   sendDataToDataBase(updatedJSON);
   fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
   console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
-
 triggerAnalysis_Module(jsonData);
