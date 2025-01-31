@@ -246,12 +246,12 @@
             },
             "respuestaChatGPT": {
               "pregunta": "¿Tiene las griferias correctamente instalada el lavamanos/platos de la mesada?",
-              "progreso": "NO",
-              "porcentaje": "0%",
+              "progreso": "SI",
+              "porcentaje": "100%",
               "Observaciones": [
                 {
                   "criterio": "instalacion",
-                  "detalle": "Las griferías no están correctamente instaladas."
+                  "detalle": "INSTALADO CORRECTAMENTE"
                 }
               ]
             }
@@ -308,12 +308,12 @@
             ],
             "respuestaChatGPT": {
               "pregunta": "¿Tiene las griferias correctamente instalada el lavamanos/platos de la mesada?",
-              "progreso": "NO",
-              "porcentaje": "0%",
+              "progreso": "SI",
+              "porcentaje": "100%",
               "Observaciones": [
                 {
                   "criterio": "instalacion",
-                  "detalle": "Las griferías no están correctamente instaladas."
+                  "detalle": "INSTALADO CORRECTAMENTE"
                 }
               ]
             }
