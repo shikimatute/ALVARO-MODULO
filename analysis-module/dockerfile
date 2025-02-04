@@ -14,7 +14,9 @@ RUN npm install
 COPY . .
 
 # Expone el puerto en el que tu aplicación escucha (por ejemplo, 3000)
-EXPOSE 1338
+EXPOSE 3000
+
+WORKDIR /usr/src/app/analysis-module
 
 # Comando por defecto para iniciar la aplicación
 CMD ["npm", "start"]

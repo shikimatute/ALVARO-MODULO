@@ -1,5 +1,6 @@
 {
   "type": "module",
+  "name": "rest-ia-eyefinish",
   "scripts": {
     "start": "node dist/server.js",
     "build": "tsc"

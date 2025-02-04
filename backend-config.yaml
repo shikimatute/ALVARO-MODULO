@@ -1,0 +1,7 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: ia-validator-backend-config
+spec:
+  securityPolicy:
+    name: allow-https

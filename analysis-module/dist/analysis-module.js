@@ -205,18 +205,18 @@ function extractObjectRooms(jsonData) {
             // Extraer solo las preguntas con imágenes dentro de terminaciones
             const questionObject = characteristic.terminaciones
                 .filter((terminacion) => {
-                // Verificamos que 'respuesta' exista y sea un objeto
-                if (!terminacion.respuesta || typeof terminacion.respuesta !== "object") {
-                    return false;
-                }
-                // Verificamos que 'listaImagenes' exista y sea un array no vacío
-                return (Array.isArray(terminacion.respuesta.listaImagenes) &&
-                    terminacion.respuesta.listaImagenes.length > 0);
-            })
+                    // Verificamos que 'respuesta' exista y sea un objeto
+                    if (!terminacion.respuesta || typeof terminacion.respuesta !== "object") {
+                        return false;
+                    }
+                    // Verificamos que 'listaImagenes' exista y sea un array no vacío
+                    return (Array.isArray(terminacion.respuesta.listaImagenes) &&
+                        terminacion.respuesta.listaImagenes.length > 0);
+                })
                 .map((terminacion) => ({
-                question: terminacion.pregunta,
-                imgs: terminacion.respuesta.listaImagenes.map((img) => img.uri),
-            }));
+                    question: terminacion.pregunta,
+                    imgs: terminacion.respuesta.listaImagenes.map((img) => img.uri),
+                }));
             // Solo agregar el ambiente si tiene preguntas con imágenes
             if (questionObject.length > 0) {
                 const objectRoom = {
@@ -261,9 +261,11 @@ function addChatGPTResponseToJSON(originalJSON, analyzedRooms, responses) {
 }
 async function sendDataToDataBase(data) {
     try {
-        const response = await axios.post("http://rest-back.eyefinishapp.com/v3/test_chat_gpt", { data: data }, {
+        const response = await axios.post("https://rest-back.eyefinishapp.com/v3/test_chat_gpt", { data: data }, {
             headers: {
                 "Content-Type": "application/json",
+                "X-Parse-Master-Key": "myMasterKey",
+                "X-Parse-Application-Id": "myAppId"
             },
         });
         console.log("Respuesta del endpoint externo:", response.data);
@@ -297,14 +299,17 @@ async function analyzeAndStoreResponses(objectRoomArray) {
     console.log(responses);
     return responses;
 }
-export async function triggerAnalysis_Module(jsonData) {
+export async function triggerAnalysis_Module(jsonData, objectoPadre ) {
     const objectRoomArray = extractObjectRooms(jsonData);
     const responses = await analyzeAndStoreResponses(objectRoomArray);
     const updatedJSON = addChatGPTResponseToJSON(jsonData, objectRoomArray, responses);
     const outputFilePath = path.join(__dirname, "json_resultado.json");
     // sendDataToServer(updatedJSON);
-    sendDataToDataBase(updatedJSON);
+    sendDataToDataBase({
+        analisisIA :updatedJSON,
+        controlBase:objectoPadre
+    });
     fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
     console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
-triggerAnalysis_Module(jsonData);
+//triggerAnalysis_Module(jsonData);

@@ -336,11 +336,13 @@ function addChatGPTResponseToJSON(
 async function sendDataToDataBase(data: any) {
   try {
     const response = await axios.post(
-      "http://rest-back.eyefinishapp.com/v3/test_chat_gpt",
+      "https://rest-back.eyefinishapp.com/v3/test_chat_gpt",
       { data: data },
       {
         headers: {
           "Content-Type": "application/json",
+          "X-Parse-Master-Key": "myMasterKey",
+            "X-Parse-Application-Id": "myAppId"
         },
       }
     );
