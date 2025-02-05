@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rest-ia-eyefinish
+  labels:
+    app: rest-ia-eyefinish
+spec:
+  replicas: 1 # Puedes aumentar esto si necesitas más réplicas para balanceo de carga
+  selector:
+    matchLabels:
+      app: rest-ia-eyefinish
+  template:
+    metadata:
+      labels:
+        app: rest-ia-eyefinish
+    spec:
+      containers:
+        - name: rest-ia-eyefinish
+          image: gcr.io/eyefinish-0/rest-ia-eyefinish:v7 # Cambia esto con la URL correcta de tu imagen en GCR
+          ports:
+            - containerPort: 3000 # Puerto donde tu aplicación escucha
+          env:
+            - name: NODE_ENV
+              value: "production" # Cambia esto según tu entorno
+            - name: PORT
+              value: "3000" # Puerto configurado en tu aplicación Node.js

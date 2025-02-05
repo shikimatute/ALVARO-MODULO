@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rest-ia-eyefinish-service
+  annotations:
+    cloud.google.com/backend-config: '{"ports": {"80":"ia-validator-backend-config"}}'
+spec:
+  selector:
+    app: rest-ia-eyefinish
+  ports:
+    - protocol: TCP
+      port: 80       # Puerto expuesto externamente
+      targetPort: 3000 # Puerto donde corre tu app en el contenedor
+  type: LoadBalancer # Usa LoadBalancer para exponer el servicio externamente
+
+
+
+
+ 
