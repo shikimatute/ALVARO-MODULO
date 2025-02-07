@@ -3,13 +3,11 @@ import Ajv, { Schema } from "ajv";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
 // type EstadoEnum = "SI" | "NO" | "PARCIALMENTE"; //Valor para chatgpt
 
 const clientAi = new openai({
-  apiKey:
-    "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",
+  apiKey: process.env.OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
 });
 
@@ -214,7 +212,7 @@ async function executeAnalysisOnRoom(objectRoom: ObjectRoom): Promise<any[]> {
     }
     console.log("RESPUESTA DEL JSON RESPONSE");
     console.log("RESPUESTA DEL JSON RESPONSE");
-    console.log(JSON.stringify(jsonResponseArray));
+    console.log(JSON.stringify(jsonResponseArray, null, 2));
     return jsonResponseArray;
   } catch (error) {
     console.error("❌ Error crítico, deteniendo ejecución:", error);
@@ -305,21 +303,21 @@ function addChatGPTResponseToJSON(
 
     if (analyzedRoom) {
       room.caracteristicas = room.caracteristicas.map((caracteristica: Caracteristica) => {
-        // Buscar si esta característica tiene preguntas analizadas
-        const analyzedIndex = analyzedRooms.findIndex(
-          (r) => r.objectAnalisis === caracteristica.nombre
-        );
+        // Verificar si esta característica fue analizada
+        const analyzedIndexes = analyzedRooms
+          .map((r, index) => (r.objectAnalisis === caracteristica.nombre ? index : -1))
+          .filter((index) => index !== -1);
 
-        if (analyzedIndex !== -1) {
+        if (analyzedIndexes.length > 0) {
           // Modificar cada pregunta dentro de terminaciones
           caracteristica.terminaciones = caracteristica.terminaciones.map((terminacion: any) => {
-            // Buscar la respuesta correspondiente
-            const response = responses[analyzedIndex];
+            // Buscar la respuesta correspondiente a esta pregunta
+            const response = responses.find((resp) => resp.pregunta === terminacion.pregunta);
 
-            if (response && terminacion.pregunta) {
+            if (response) {
               return {
                 ...terminacion,
-                respuestaChatGPT: response, // 🔥 Ahora se agrega al mismo nivel que pregunta
+                respuestaChatGPT: response, // 🔥 Se asegura que la respuesta coincide con la pregunta
               };
             }
             return terminacion;
@@ -336,13 +334,13 @@ function addChatGPTResponseToJSON(
 async function sendDataToDataBase(data: any) {
   try {
     const response = await axios.post(
-      "https://rest-back.eyefinishapp.com/v3/test_chat_gpt",
+      process.env.REST_EYE_FINISH ?? "-",
       { data: data },
       {
         headers: {
           "Content-Type": "application/json",
           "X-Parse-Master-Key": "myMasterKey",
-            "X-Parse-Application-Id": "myAppId"
+          "X-Parse-Application-Id": "myAppId",
         },
       }
     );
@@ -353,19 +351,6 @@ async function sendDataToDataBase(data: any) {
   }
 }
 
-// jsonData = insertKeyAtPosition(jsonData, "respuestaChatGPT", jsonResponse, 1);
-// "http://imgfz.com/i/b9NqeCD.jpeg", // imagen de mesada
-// http://imgfz.com/i/CKibLPg.jpeg     // imagen de enchufes
-//respuestadechatgpt axios
-// http://rest-back.eyefinishapp.com
-// http://rest-back.eyefinishapp.com/test-chat-gpt golpear esta url
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const jsonFilePath = path.join(__dirname, "json_form_app.json");
-// Leer el archivo JSON
-const rawData = fs.readFileSync(jsonFilePath, "utf-8");
-const jsonData = JSON.parse(rawData);
-console.log("Datos cargados desde JSON:", jsonData);
 
 //PARA TESTEO
 async function analyzeAndStoreResponses(objectRoomArray: ObjectRoom[]): Promise<any[]> {
@@ -394,4 +379,4 @@ export async function triggerAnalysis_Module(jsonData: any) {
   fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
   console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
-triggerAnalysis_Module(jsonData);
+//triggerAnalysis_Module(jsonData);  

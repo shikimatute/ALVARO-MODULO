@@ -3,10 +3,9 @@ import Ajv from "ajv";
 import axios from "axios";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 // type EstadoEnum = "SI" | "NO" | "PARCIALMENTE"; //Valor para chatgpt
 const clientAi = new openai({
-    apiKey: "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",
+    apiKey: process.env.OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
 });
 const ajv = new Ajv();
@@ -178,7 +177,7 @@ async function executeAnalysisOnRoom(objectRoom) {
         }
         console.log("RESPUESTA DEL JSON RESPONSE");
         console.log("RESPUESTA DEL JSON RESPONSE");
-        console.log(JSON.stringify(jsonResponseArray));
+        console.log(JSON.stringify(jsonResponseArray, null, 2));
         return jsonResponseArray;
     }
     catch (error) {
@@ -205,18 +204,18 @@ function extractObjectRooms(jsonData) {
             // Extraer solo las preguntas con imágenes dentro de terminaciones
             const questionObject = characteristic.terminaciones
                 .filter((terminacion) => {
-                    // Verificamos que 'respuesta' exista y sea un objeto
-                    if (!terminacion.respuesta || typeof terminacion.respuesta !== "object") {
-                        return false;
-                    }
-                    // Verificamos que 'listaImagenes' exista y sea un array no vacío
-                    return (Array.isArray(terminacion.respuesta.listaImagenes) &&
-                        terminacion.respuesta.listaImagenes.length > 0);
-                })
+                // Verificamos que 'respuesta' exista y sea un objeto
+                if (!terminacion.respuesta || typeof terminacion.respuesta !== "object") {
+                    return false;
+                }
+                // Verificamos que 'listaImagenes' exista y sea un array no vacío
+                return (Array.isArray(terminacion.respuesta.listaImagenes) &&
+                    terminacion.respuesta.listaImagenes.length > 0);
+            })
                 .map((terminacion) => ({
-                    question: terminacion.pregunta,
-                    imgs: terminacion.respuesta.listaImagenes.map((img) => img.uri),
-                }));
+                question: terminacion.pregunta,
+                imgs: terminacion.respuesta.listaImagenes.map((img) => img.uri),
+            }));
             // Solo agregar el ambiente si tiene preguntas con imágenes
             if (questionObject.length > 0) {
                 const objectRoom = {
@@ -237,17 +236,19 @@ function addChatGPTResponseToJSON(originalJSON, analyzedRooms, responses) {
         const analyzedRoom = analyzedRooms.find((r) => r.room === room.nombre);
         if (analyzedRoom) {
             room.caracteristicas = room.caracteristicas.map((caracteristica) => {
-                // Buscar si esta característica tiene preguntas analizadas
-                const analyzedIndex = analyzedRooms.findIndex((r) => r.objectAnalisis === caracteristica.nombre);
-                if (analyzedIndex !== -1) {
+                // Verificar si esta característica fue analizada
+                const analyzedIndexes = analyzedRooms
+                    .map((r, index) => (r.objectAnalisis === caracteristica.nombre ? index : -1))
+                    .filter((index) => index !== -1);
+                if (analyzedIndexes.length > 0) {
                     // Modificar cada pregunta dentro de terminaciones
                     caracteristica.terminaciones = caracteristica.terminaciones.map((terminacion) => {
-                        // Buscar la respuesta correspondiente
-                        const response = responses[analyzedIndex];
-                        if (response && terminacion.pregunta) {
+                        // Buscar la respuesta correspondiente a esta pregunta
+                        const response = responses.find((resp) => resp.pregunta === terminacion.pregunta);
+                        if (response) {
                             return {
                                 ...terminacion,
-                                respuestaChatGPT: response, // 🔥 Ahora se agrega al mismo nivel que pregunta
+                                respuestaChatGPT: response, // 🔥 Se asegura que la respuesta coincide con la pregunta
                             };
                         }
                         return terminacion;
@@ -261,11 +262,11 @@ function addChatGPTResponseToJSON(originalJSON, analyzedRooms, responses) {
 }
 async function sendDataToDataBase(data) {
     try {
-        const response = await axios.post("https://rest-back.eyefinishapp.com/v3/test_chat_gpt", { data: data }, {
+        const response = await axios.post(process.env.REST_EYE_FINISH ?? "-", { data: data }, {
             headers: {
                 "Content-Type": "application/json",
                 "X-Parse-Master-Key": "myMasterKey",
-                "X-Parse-Application-Id": "myAppId"
+                "X-Parse-Application-Id": "myAppId",
             },
         });
         console.log("Respuesta del endpoint externo:", response.data);
@@ -274,19 +275,6 @@ async function sendDataToDataBase(data) {
         console.error("Error al comunicarse con el endpoint externo:", error);
     }
 }
-// jsonData = insertKeyAtPosition(jsonData, "respuestaChatGPT", jsonResponse, 1);
-// "http://imgfz.com/i/b9NqeCD.jpeg", // imagen de mesada
-// http://imgfz.com/i/CKibLPg.jpeg     // imagen de enchufes
-//respuestadechatgpt axios
-// http://rest-back.eyefinishapp.com
-// http://rest-back.eyefinishapp.com/test-chat-gpt golpear esta url
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const jsonFilePath = path.join(__dirname, "json_form_app.json");
-// Leer el archivo JSON
-const rawData = fs.readFileSync(jsonFilePath, "utf-8");
-const jsonData = JSON.parse(rawData);
-console.log("Datos cargados desde JSON:", jsonData);
 //PARA TESTEO
 async function analyzeAndStoreResponses(objectRoomArray) {
     const responses = [];
@@ -299,17 +287,14 @@ async function analyzeAndStoreResponses(objectRoomArray) {
     console.log(responses);
     return responses;
 }
-export async function triggerAnalysis_Module(jsonData, objectoPadre ) {
+export async function triggerAnalysis_Module(jsonData) {
     const objectRoomArray = extractObjectRooms(jsonData);
     const responses = await analyzeAndStoreResponses(objectRoomArray);
     const updatedJSON = addChatGPTResponseToJSON(jsonData, objectRoomArray, responses);
     const outputFilePath = path.join(__dirname, "json_resultado.json");
     // sendDataToServer(updatedJSON);
-    sendDataToDataBase({
-        analisisIA :updatedJSON,
-        controlBase:objectoPadre
-    });
+    sendDataToDataBase(updatedJSON);
     fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
     console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
-//triggerAnalysis_Module(jsonData);
+//triggerAnalysis_Module(jsonData);  

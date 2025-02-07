@@ -1,9 +1,14 @@
 import express from "express";
-import { triggerAnalysis_Module } from "./analysis-module";
+import "./config.js"; // Asegura que las variables de entorno se cargan antes de todo
+import { triggerAnalysis_Module } from "./analysis-module.js";
 
 const app = express();
+console.log("")
+console.log("------------------------------------------")
+console.log("      INICIANDO APP-IA-ANALYSIS")
+console.log("------------------------------------------")
+console.log("")
 
- 
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 
@@ -51,5 +56,11 @@ app.post("/api/submit", async (req, res) => {
 // Inicia el servidor
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log("")
+  console.log("------------------------------------------")
+  console.log("")
+  console.log(`SERVIDOR CORRIENDO ->  http://localhost:${PORT}`);
+  console.log("")
+  console.log("")
+
 });
