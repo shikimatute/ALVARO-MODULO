@@ -65,7 +65,7 @@ async function askChatGPT(imageUrls: string[], instruction: string) {
   try {
     console.log(imageUrls);
     const payload = {
-      model: "gpt-4o-mini",
+      model: "o3-mini-2025-01-31",
       messages: [],
       max_tokens: 500,
     };
