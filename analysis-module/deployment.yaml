@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: rest-ia-eyefinish
-          image: gcr.io/eyefinish-0/rest-ia-eyefinish:v7 # Cambia esto con la URL correcta de tu imagen en GCR
+          image: gcr.io/eyefinish-0/rest-ia-eyefinish:v16 # Cambia esto con la URL correcta de tu imagen en GCR
           ports:
             - containerPort: 3000 # Puerto donde tu aplicación escucha
           env:

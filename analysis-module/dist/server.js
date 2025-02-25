@@ -22,7 +22,7 @@ app.post("/api/submit", async (req, res) => {
                 if (data.event_datasets?.['control']?.['event_datasets']) {
                     if (data.event_datasets?.['control']?.['event_datasets']?.['zonas']) {
                         const formulario = data.event_datasets?.['control']?.['event_datasets']?.['zonas'];
-                        await triggerAnalysis_Module(formulario);
+                        await triggerAnalysis_Module(formulario,data);
                         res.status(200).json({ message: "Datos recibidos correctamente", data });
                     }
                     else {

@@ -1,8 +1,7 @@
 import openai from "openai";
 import Ajv, { Schema } from "ajv";
 import axios from "axios";
-import fs from "fs";
-import path from "path";
+ 
 
 // type EstadoEnum = "SI" | "NO" | "PARCIALMENTE"; //Valor para chatgpt
 
@@ -369,14 +368,18 @@ async function analyzeAndStoreResponses(objectRoomArray: ObjectRoom[]): Promise<
 }
 
 export async function triggerAnalysis_Module(jsonData: any) {
+
+  console.log("")
+  console.log("# EJECUTANDO ANALISIS SOBRE CONTROL ")
+  console.log("")
   const objectRoomArray = extractObjectRooms(jsonData);
   const responses = await analyzeAndStoreResponses(objectRoomArray);
 
   const updatedJSON = addChatGPTResponseToJSON(jsonData, objectRoomArray, responses);
-  const outputFilePath = path.join(__dirname, "json_resultado.json");
+  // const outputFilePath = path.join(__dirname, "json_resultado.json");
   // sendDataToServer(updatedJSON);
   sendDataToDataBase(updatedJSON);
-  fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
-  console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
+  //fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
+  // console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
 //triggerAnalysis_Module(jsonData);  
