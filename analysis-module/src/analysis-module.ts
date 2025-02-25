@@ -9,6 +9,30 @@ const clientAi = new openai({
   dangerouslyAllowBrowser: true,
 });
 
+const dinamicInstructions = `
+1. Indica cuál(es) de estas partidas deseas evaluar en la imagen (ej. CERÁMICA PISOS, RED DE GAS INTERIOR, etc.).
+
+2. Para cada partida, asigna un porcentaje de avance en cualquier punto entre 0 y 100:
+   • 0% si no se ve instalado/completado o no se aprecia en la imagen (y no hay partida posterior que lo implique como terminado).
+   • 90% si está prácticamente listo, pero no puedes confirmar la totalidad de la partida. Dejarás este 10% pendiente hasta que un administrador confirme.
+   • 100% si el elemento está completamente instalado/completado, o si en la imagen hay evidencia de una partida posterior que requiere su finalización.
+   • Si la partida incluye varios subítems (por ej., “cerraduras_interiores_y_topes”), evalúa cada uno por separado y luego calcula el promedio.
+
+3. Incluye siempre un campo “observaciones” que describa brevemente lo que se ve (o no se ve) en la imagen y justifique el porcentaje asignado.
+
+4. Opcionalmente, concluye con un campo "conclusion" si deseas un resumen general.
+`;
+
+const dinamicRules = `•	Regla de Suposición sobre Partidas Posteriores
+Si la imagen evidencia que una partida posterior está finalizada y depende de una partida anterior, se supone que la partida anterior está completada.
+	•	Ejemplo: Cerámica instalada y fraguada implica la impermeabilización previa al 100%.
+	•	No Añadir Información Extra
+	•	El porcentaje de avance se basa únicamente en la imagen y la partida consultada.
+	•	No añadas datos de otras partes de la imagen que no sean relevantes a la pregunta.
+	•	Análisis Exclusivo con Base en Foto + Pregunta
+	•	Determina la calificación (porcentaje) exclusivamente con la foto y la pregunta.
+	•	No agregues más información si el prompt no lo solicita. `;
+
 const ajv = new Ajv();
 
 function generateSchema(pregunta: string) {
@@ -16,7 +40,7 @@ function generateSchema(pregunta: string) {
     type: "object",
     properties: {
       pregunta: { const: pregunta },
-      progreso: { type: "string", enum: ["SI", "NO"] },
+      progreso: { type: "string", enum: ["COMPLETO", "INCOMPLETO"] },
       porcentaje: { type: "string" },
       Observaciones: {
         type: "array",
@@ -40,24 +64,39 @@ function generateInstruction(
   esquemaGenerado: Schema,
   typeroom: string,
   question: string,
-  contextoIA: string
+  contextoIA: string,
+  dinamicInstructions: string,
+  dinamicRules: string
 ) {
   const esquemaString = JSON.stringify(esquemaGenerado, null, 2);
   const instruction = `
-Eres un analizador de imágenes de una empresa constructora que evalúa el progreso de obras. Tu tarea es determinar si se encuentran instalado el elemento en cuestion que se te preguntara respondiendo a unas preguntas.
+Eres un analizador de imágenes de una empresa constructora. En las siguientes imágenes se muestra una vivienda en construcción, pertenecientes a una ${typeroom}. Se requiere verificar la instalación y/o terminación de diversos elementos. Para cada ítem, se deberá indicar el porcentaje de avance. Cuando una partida incluya más de un subítem (por ejemplo, cerraduras y topes), se calculará el promedio de sus estados de avance
 
-Las siguiente o siguientes imágenes pertenecen al mismo objeto a analizar de tipo ${element}. Este elemento pertenece a una ${typeroom} .Necesito que me devuelvas **únicamente** la respuesta en formato JSON **válido**, siguiendo exactamente la siguiente estructura ESQUEMA y agregar **SOLAMENTE LAS RESPUESTAS** donde deberian ir :
+Para el siguiente ${element} ten en cuenta lo siguiente:
 
+${dinamicInstructions}
+
+Ten en cuenta estas instrucciones para responder el siguiente :
 ${esquemaGenerado} 
+Sigue las siguientes reglas para responder estas ${question}:
 
-Las respuesta para el criterio "progreso" debe ser el siguiente enum: type EstadoEnum = "SI" | "NO";
-Las respuestas deben satisfacer el criterio establecido por las siquientes preguntas ${question}, y cada pregunta pregunta tiene que ser respondida con el siguiente criterio: ${contextoIA}.
-Para el campo "Porcentaje", colocar 100% en caso de que la respusta sea "SI" y 0% en caso que la respuesta sea "NO". Esta respuesta debe ser un string con el formato "%numero" donde numero es el solicitado anteriormente.
+${dinamicRules} .
+  Las respuesta para el criterio "progreso" debe ser el siguiente enum: type EstadoEnum = "COMPLETO" | "INCOMPLETO";
 
-Finalmente, en "Criterio" incluye instalacion y en "Observaciones", incluye "INSTALADO CORRECTAMENTE" si la respuesta es "SI".En caso que la respuesta sea "NO", comentar criterio y detalles con una estructura a la del objeto Observaciones del esquema utilizado en la structura JSON
+Ademas cada pregunta tiene que ser respondida con el siguiente criterio: ${contextoIA}
+ EN CONCLUSION: 
+  1.	Observa la imagen.
+	2.	Evalúa el porcentaje de avance (0%, 90%, 100%, u otro valor intermedio si son varios subítems).
+	3.	Regla de Suposición: si una partida posterior depende de esta y está instalada, asume la partida previa al 100%.
+	4.	90%: si no puedes confirmar totalmente que esté al 100%, deja un 10% pendiente hasta la confirmación del administrador.
+	5.	Observaciones: describe brevemente la razón de tu calificación, sin información adicional no solicitada.
+Criterios de Evaluación
+	•	0%: No instalado o no visto en la imagen.
+	•	90%: Prácticamente listo, pero sin confirmación absoluta.
+	•	100%: Completo o deducido por la Regla de Suposición.
+	•	Valores intermedios: si varios subítems tienen estados diferentes (ej. 50% si uno está a 100% y otro a 0%).
 
-**Importante:** Devuelve únicamente un JSON que debe ser validado con el siguiente ${esquemaString} schema, sin texto adicional antes o después pero con las respuestas
-IMPORTANTE: En caso de que la instalacion sea parcial, la respuesta sera "NO".`;
+**Importante:** Devuelve únicamente un JSON que debe ser validado con el siguiente ${esquemaString} schema, sin texto adicional antes o después pero con las respuestas `;
   return instruction;
 }
 
@@ -65,7 +104,7 @@ async function askChatGPT(imageUrls: string[], instruction: string) {
   try {
     console.log(imageUrls);
     const payload = {
-      model: "o3-mini-2025-01-31",
+      model: "gpt-4o-mini",
       messages: [],
       max_tokens: 500,
     };
@@ -200,7 +239,9 @@ async function executeAnalysisOnRoom(objectRoom: ObjectRoom): Promise<any[]> {
         schema,
         objectRoom.room,
         question[i],
-        contextoIA[i]
+        contextoIA[i],
+        dinamicInstructions,
+        dinamicRules
       );
 
       const jsonResponse = await getChatResponse(imgs[i], instruction, schema, objectRoom.room);
