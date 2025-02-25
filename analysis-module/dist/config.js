@@ -3,7 +3,7 @@ dotenv.config();
 console.log("");
 console.log("------------------------------------------");
 console.log("");
-console.log("####  INFOMRACION VARIABLES DE ENTORNO ####");
+console.log("####  INFORMACION VARIABLES DE ENTORNO ####");
 console.log("");
 console.log("------------------------------------------");
 console.log("");

@@ -1,7 +1,6 @@
 import openai from "openai";
 import Ajv, { Schema } from "ajv";
 import axios from "axios";
- 
 
 // type EstadoEnum = "SI" | "NO" | "PARCIALMENTE"; //Valor para chatgpt
 
@@ -40,7 +39,8 @@ function generateInstruction(
   element: string,
   esquemaGenerado: Schema,
   typeroom: string,
-  question: string
+  question: string,
+  contextoIA: string
 ) {
   const esquemaString = JSON.stringify(esquemaGenerado, null, 2);
   const instruction = `
@@ -51,7 +51,7 @@ Las siguiente o siguientes imágenes pertenecen al mismo objeto a analizar de ti
 ${esquemaGenerado} 
 
 Las respuesta para el criterio "progreso" debe ser el siguiente enum: type EstadoEnum = "SI" | "NO";
-Las respuestas deben satisfacer el criterio establecido por las siquientes preguntas ${question}
+Las respuestas deben satisfacer el criterio establecido por las siquientes preguntas ${question}, y cada pregunta pregunta tiene que ser respondida con el siguiente criterio: ${contextoIA}.
 Para el campo "Porcentaje", colocar 100% en caso de que la respusta sea "SI" y 0% en caso que la respuesta sea "NO". Esta respuesta debe ser un string con el formato "%numero" donde numero es el solicitado anteriormente.
 
 Finalmente, en "Criterio" incluye instalacion y en "Observaciones", incluye "INSTALADO CORRECTAMENTE" si la respuesta es "SI".En caso que la respuesta sea "NO", comentar criterio y detalles con una estructura a la del objeto Observaciones del esquema utilizado en la structura JSON
@@ -190,16 +190,17 @@ async function executeAnalysisOnRoom(objectRoom: ObjectRoom): Promise<any[]> {
     for (var i = 0; i < objectRoom.questionObject.length; i++) {
       console.log("Generando pregunta numero :" + i);
       const question = objectRoom.questionObject.map((q) => q.question);
+      const contextoIA = objectRoom.questionObject.map((q) => q.contextoIA);
       console.log(question[i]);
       const imgs = objectRoom.questionObject.map((q) => q.imgs);
       const schema = generateSchema(question[i]);
       // console.log(schema); //test line
-
       const instruction = generateInstruction(
         objectRoom.objectAnalisis,
         schema,
         objectRoom.room,
-        question[i]
+        question[i],
+        contextoIA[i]
       );
 
       const jsonResponse = await getChatResponse(imgs[i], instruction, schema, objectRoom.room);
@@ -224,7 +225,8 @@ interface ObjectRoom {
   objectCount: number;
   objectAnalisis: string; //caracteristicas
   questionObject: {
-    question: string; //pregunta
+    question: string;
+    contextoIA: string; //pregunta
     imgs: string[];
   }[];
 }
@@ -272,6 +274,7 @@ function extractObjectRooms(jsonData: any): ObjectRoom[] {
         })
         .map((terminacion: any) => ({
           question: terminacion.pregunta,
+          contextoIA: terminacion.contextoIA ?? " ",
           imgs: terminacion.respuesta.listaImagenes.map((img: any) => img.uri),
         }));
 
@@ -350,7 +353,6 @@ async function sendDataToDataBase(data: any) {
   }
 }
 
-
 //PARA TESTEO
 async function analyzeAndStoreResponses(objectRoomArray: ObjectRoom[]): Promise<any[]> {
   const responses: any[] = [];
@@ -367,19 +369,20 @@ async function analyzeAndStoreResponses(objectRoomArray: ObjectRoom[]): Promise<
   return responses;
 }
 
-export async function triggerAnalysis_Module(jsonData: any) {
-
-  console.log("")
-  console.log("# EJECUTANDO ANALISIS SOBRE CONTROL ")
-  console.log("")
-  const objectRoomArray = extractObjectRooms(jsonData);
+export async function triggerAnalysis_Module(jsonValidationData: any, infoData: any) {
+  console.log("");
+  console.log("# EJECUTANDO ANALISIS SOBRE CONTROL ");
+  console.log("");
+  const objectRoomArray = extractObjectRooms(jsonValidationData);
   const responses = await analyzeAndStoreResponses(objectRoomArray);
 
-  const updatedJSON = addChatGPTResponseToJSON(jsonData, objectRoomArray, responses);
+  const updatedJSON = addChatGPTResponseToJSON(jsonValidationData, objectRoomArray, responses);
   // const outputFilePath = path.join(__dirname, "json_resultado.json");
-  // sendDataToServer(updatedJSON);
-  sendDataToDataBase(updatedJSON);
+  sendDataToDataBase({
+    controlInfo: infoData,
+    analisisIA: updatedJSON,
+  });
   //fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
   // console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
-//triggerAnalysis_Module(jsonData);  
+//triggerAnalysis_Module(jsonData, infoData); para testeo

@@ -1,6 +1,6 @@
+import openai from "openai";
 import Ajv from "ajv";
 import axios from "axios";
-import openai from "openai";
 // type EstadoEnum = "SI" | "NO" | "PARCIALMENTE"; //Valor para chatgpt
 const clientAi = new openai({
     apiKey: process.env.OPENAI_API_KEY,
@@ -30,27 +30,25 @@ function generateSchema(pregunta) {
     };
 }
 //Generamos esquema dinamico
-function generateInstruction(element, esquemaGenerado, typeroom, question) {
+function generateInstruction(element, esquemaGenerado, typeroom, question, contextoIA) {
     const esquemaString = JSON.stringify(esquemaGenerado, null, 2);
-    const instruction =
-        `
-    Eres un analizador de imágenes de una empresa constructora que evalúa el progreso de obras. Tu tarea es determinar si se encuentran instalado el elemento en cuestion que se te preguntara respondiendo a unas preguntas.
-    
-    Las siguiente o siguientes imágenes pertenecen al mismo objeto a analizar de tipo ${element}. Este elemento pertenece a una ${typeroom} .Necesito que me devuelvas **únicamente** la respuesta en formato JSON **válido**, siguiendo exactamente la siguiente estructura ESQUEMA y agregar **SOLAMENTE LAS RESPUESTAS** donde deberian ir :
-    
-    ${esquemaGenerado} 
-    
-    Las respuesta para el criterio "progreso" debe ser el siguiente enum: type EstadoEnum = "SI" | "NO";
-    Las respuestas deben satisfacer el criterio establecido por las siquientes preguntas ${question}
-    Para el campo "Porcentaje", colocar 100% en caso de que la respusta sea "SI" y 0% en caso que la respuesta sea "NO". Esta respuesta debe ser un string con el formato "%numero" donde numero es el solicitado anteriormente.
-    
-    Finalmente, en "Criterio" incluye instalacion y en "Observaciones", incluye "INSTALADO CORRECTAMENTE" si la respuesta es "SI".En caso que la respuesta sea "NO", comentar criterio y detalles con una estructura a la del objeto Observaciones del esquema utilizado en la structura JSON
-    
-    **Importante:** Devuelve únicamente un JSON que debe ser validado con el siguiente ${esquemaString} schema, sin texto adicional antes o después pero con las respuestas
-    IMPORTANTE: En caso de que la instalacion sea parcial, la respuesta sera "NO".`;
+    const instruction = `
+Eres un analizador de imágenes de una empresa constructora que evalúa el progreso de obras. Tu tarea es determinar si se encuentran instalado el elemento en cuestion que se te preguntara respondiendo a unas preguntas.
+
+Las siguiente o siguientes imágenes pertenecen al mismo objeto a analizar de tipo ${element}. Este elemento pertenece a una ${typeroom} .Necesito que me devuelvas **únicamente** la respuesta en formato JSON **válido**, siguiendo exactamente la siguiente estructura ESQUEMA y agregar **SOLAMENTE LAS RESPUESTAS** donde deberian ir :
+
+${esquemaGenerado} 
+
+Las respuesta para el criterio "progreso" debe ser el siguiente enum: type EstadoEnum = "SI" | "NO";
+Las respuestas deben satisfacer el criterio establecido por las siquientes preguntas ${question}, y cada pregunta pregunta tiene que ser respondida con el siguiente criterio: ${contextoIA}.
+Para el campo "Porcentaje", colocar 100% en caso de que la respusta sea "SI" y 0% en caso que la respuesta sea "NO". Esta respuesta debe ser un string con el formato "%numero" donde numero es el solicitado anteriormente.
+
+Finalmente, en "Criterio" incluye instalacion y en "Observaciones", incluye "INSTALADO CORRECTAMENTE" si la respuesta es "SI".En caso que la respuesta sea "NO", comentar criterio y detalles con una estructura a la del objeto Observaciones del esquema utilizado en la structura JSON
+
+**Importante:** Devuelve únicamente un JSON que debe ser validado con el siguiente ${esquemaString} schema, sin texto adicional antes o después pero con las respuestas
+IMPORTANTE: En caso de que la instalacion sea parcial, la respuesta sera "NO".`;
     return instruction;
 }
-
 async function askChatGPT(imageUrls, instruction) {
     try {
         console.log(imageUrls);
@@ -163,11 +161,12 @@ async function executeAnalysisOnRoom(objectRoom) {
         for (var i = 0; i < objectRoom.questionObject.length; i++) {
             console.log("Generando pregunta numero :" + i);
             const question = objectRoom.questionObject.map((q) => q.question);
+            const contextoIA = objectRoom.questionObject.map((q) => q.contextoIA);
             console.log(question[i]);
             const imgs = objectRoom.questionObject.map((q) => q.imgs);
             const schema = generateSchema(question[i]);
             // console.log(schema); //test line
-            const instruction = generateInstruction(objectRoom.objectAnalisis, schema, objectRoom.room, question[i]);
+            const instruction = generateInstruction(objectRoom.objectAnalisis, schema, objectRoom.room, question[i], contextoIA[i]);
             const jsonResponse = await getChatResponse(imgs[i], instruction, schema, objectRoom.room);
             console.log("RESPUESTA NUMERO " + i + "\n" + JSON.stringify(jsonResponse, null, 2));
             jsonResponseArray.push(jsonResponse);
@@ -204,18 +203,19 @@ function extractObjectRooms(jsonData) {
             // Extraer solo las preguntas con imágenes dentro de terminaciones
             const questionObject = characteristic.terminaciones
                 .filter((terminacion) => {
-                    // Verificamos que 'respuesta' exista y sea un objeto
-                    if (!terminacion.respuesta || typeof terminacion.respuesta !== "object") {
-                        return false;
-                    }
-                    // Verificamos que 'listaImagenes' exista y sea un array no vacío
-                    return (Array.isArray(terminacion.respuesta.listaImagenes) &&
-                        terminacion.respuesta.listaImagenes.length > 0);
-                })
+                // Verificamos que 'respuesta' exista y sea un objeto
+                if (!terminacion.respuesta || typeof terminacion.respuesta !== "object") {
+                    return false;
+                }
+                // Verificamos que 'listaImagenes' exista y sea un array no vacío
+                return (Array.isArray(terminacion.respuesta.listaImagenes) &&
+                    terminacion.respuesta.listaImagenes.length > 0);
+            })
                 .map((terminacion) => ({
-                    question: terminacion.pregunta,
-                    imgs: terminacion.respuesta.listaImagenes.map((img) => img.uri),
-                }));
+                question: terminacion.pregunta,
+                contextoIA: terminacion.contextoIA ?? " ",
+                imgs: terminacion.respuesta.listaImagenes.map((img) => img.uri),
+            }));
             // Solo agregar el ambiente si tiene preguntas con imágenes
             if (questionObject.length > 0) {
                 const objectRoom = {
@@ -295,12 +295,11 @@ export async function triggerAnalysis_Module(jsonValidationData, infoData) {
     const responses = await analyzeAndStoreResponses(objectRoomArray);
     const updatedJSON = addChatGPTResponseToJSON(jsonValidationData, objectRoomArray, responses);
     // const outputFilePath = path.join(__dirname, "json_resultado.json");
-    // sendDataToServer(updatedJSON);
     sendDataToDataBase({
         controlInfo: infoData,
-        analisisIA: updatedJSON
+        analisisIA: updatedJSON,
     });
     //fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
     // console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath);
 }
-//triggerAnalysis_Module(jsonData);  
+//triggerAnalysis_Module(jsonData, infoData); para testeo
