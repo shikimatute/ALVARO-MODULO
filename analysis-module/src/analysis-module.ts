@@ -104,7 +104,7 @@ async function askChatGPT(imageUrls: string[], instruction: string) {
   try {
     console.log(imageUrls);
     const payload = {
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [],
       max_tokens: 500,
     };
