@@ -4,8 +4,10 @@ import openai from "openai";
 import Ajv from "ajv";
 //dotenv.config(); //for test
 const clientAi = new openai({
-    apiKey: "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",
-    //apiKey: process.env.OPENAI_API_KEY,
+    /*apiKey:
+      "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",
+  */
+    apiKey: process.env.OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
 });
 const ajv = new Ajv();

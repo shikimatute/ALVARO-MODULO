@@ -7,10 +7,10 @@ import { ObjectRoom } from "./interface";
 //dotenv.config(); //for test
 
 const clientAi = new openai({
-  apiKey:
+  /*apiKey:
     "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",
-
-  //apiKey: process.env.OPENAI_API_KEY,
+*/
+  apiKey: process.env.OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
 });
 
