@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rest-ia-eyefinish-ingress
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    networking.gke.io/managed-certificates: "rest-ia-eyefinish-cert"
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  rules:
+    - host: ia-validator.eyefinishapp.com # Debe coincidir con el certificado
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rest-ia-eyefinish-service
+                port:
+                  number: 80

@@ -1,0 +1,204 @@
+[
+  {
+    "proyecto": {
+      "event_tags": [],
+      "event_images": [],
+      "event_categories": [],
+      "event_datasets": {
+        "link_name": "Al_PY",
+        "link_code": "Al_PY",
+        "link_url": "Al_PY",
+        "contextInstruccionesIA": "1. Indica cuál(es) de estas partidas deseas evaluar en la imagen (ej. CERÁMICA PISOS, RED DE GAS INTERIOR, etc).\n\n2. Para cada partida, asigna un porcentaje de avance en cualquier punto entre 0 y 100:\n   • 0% si no se ve instalado/completado o no se aprecia en la imagen (y no hay partida posterior que lo implique como terminado).\n   • 90% si está prácticamente listo, pero no puedes confirmar la totalidad de la partida. Dejarás este 10% pendiente hasta que un administrador confirme.\n   • 100% si el elemento está completamente instalado/completado, o si en la imagen hay evidencia de una partida posterior que requiere su finalización.\n   • Si la partida incluye varios subítems (por ej., “cerraduras_interiores_y_topes”), evalúa cada uno por separado y luego calcula el promedio.\n\n3. Incluye siempre un campo “observaciones” que describa brevemente lo que se ve (o no se ve) en la imagen y justifique el porcentaje asignado.\n\n4. Opcionalmente, concluye con un campo \"conclusion\" si deseas un resumen general.",
+        "contextReglasIA": "• Regla de Suposición sobre Partidas Posteriores\nSi la imagen evidencia que una partida posterior está finalizada y depende de una partida anterior, se supone que la partida anterior está completada.\n    • Ejemplo: Cerámica instalada y fraguada implica la impermeabilización previa al 100%.\n    • No Añadir Información Extra\n    • El porcentaje de avance se basa únicamente en la imagen y la partida consultada.\n    • No añadas datos de otras partes de la imagen que no sean relevantes a la pregunta.\n    • Análisis Exclusivo con Base en Foto + Pregunta\n    • Determina la calificación (porcentaje) exclusivamente con la foto y la pregunta.\n    • No agregues más información si el prompt no lo solicita.",
+        "contextConclusionIA": "EN CONCLUSION: \n  1. Observa la imagen.\n  2. Evalúa el porcentaje de avance (0%, 90%, 100%, u otro valor intermedio si son varios subítems).\n  3. Regla de Suposición: si una partida posterior depende de esta y está instalada, asume la partida previa al 100%.\n  4. 90%: si no puedes confirmar totalmente que esté al 100%, deja un 10% pendiente hasta la confirmación del administrador.\n  5. Observaciones: describe brevemente la razón de tu calificación, sin información adicional no solicitada.\nCriterios de Evaluación\n  • 0%: No instalado o no visto en la imagen.\n  • 90%: Prácticamente listo, pero sin confirmación absoluta.\n  • 100%: Completo o deducido por la Regla de Suposición.\n  • Valores intermedios: si varios subítems tienen estados diferentes (ej. 50% si uno está a 100% y otro a 0%)."
+      }
+    },
+    "nombre": "COCINA",
+    "caracteristicas": [
+      {
+        "nombre": "Revestimientos de paredes y pisos",
+        "terminaciones": [
+          {
+            "pregunta": "¿El material utilizado cumple con las especificaciones del proyecto?",
+            "contextoIA": "Checkear, si las paredes estan recuviertas con cemento en la superficie...",
+            "esObligatorio": true,
+            "numeroFotos": "1",
+            "listaTerminaciones": [
+              {
+                "event_tags": [],
+                "event_images": [],
+                "event_categories": [],
+                "event_datasets": {
+                  "link_name": "TERMINACION-01",
+                  "link_code": "TERMINACION-01",
+                  "link_url": "TERMINACION-01",
+                  "preguntas": [
+                    {
+                      "pregunta": "123"
+                    },
+                    {
+                      "pregunta": "0987654"
+                    }
+                  ]
+                },
+                "organization": {
+                  "name": "CONSTRUCTORA-EXPRESS",
+                  "objectId": "LDvX3rY30l",
+                  "code": "ldvx3ry30l",
+                  "owner": {
+                    "userId": "Y0zZSadaRw",
+                    "username": "zukozama",
+                    "email": "zuko@zama.cl"
+                  }
+                },
+                "event_id": 1737931779068,
+                "event_idtx": "1737931779068",
+                "event_name": "TERMINACION-01",
+                "event_detail": "TERMINACION-01",
+                "event_direction": "",
+                "event_type": "torre_visita",
+                "event_extra_direction": "",
+                "event_highlight": false,
+                "status": 100,
+                "location": null,
+                "event_active_date": null,
+                "event_end_date": null,
+                "createdAt": "2025-01-26T22:49:39.070Z",
+                "updatedAt": "2025-01-26T22:49:39.070Z",
+                "objectId": "CJULcxrSKR",
+                "formatAccessDate": "2025-01-26 10:49"
+              }
+            ],
+            "respuesta": {
+              "nombre": "",
+              "detalle": "Si",
+              "listaImagenes": [
+                {
+                  "assetId": null,
+                  "base64": "",
+                  "type": "image",
+                  "fileName": "1000072635.jpg",
+                  "duration": null,
+                  "exif": null,
+                  "height": 1600,
+                  "uri": "https://thumbs.dreamstime.com/z/paredes-interiores-del-edificio-bajo-construcci%C3%B3n-87992502.jpg?ct=jpeg",
+                  "fileSize": 238190,
+                  "rotation": null,
+                  "mimeType": "image/jpeg",
+                  "width": 900
+                }
+              ]
+            },
+            "respuestaChatGPT": {
+              "pregunta": "¿El material utilizado cumple con las especificaciones del proyecto?",
+              "progreso": "INCOMPLETO",
+              "porcentaje": "40%",
+              "Observaciones": [
+                {
+                  "criterio": "Revestimiento de paredes",
+                  "detalle": "Las paredes están parcialmente cubiertas con cemento, pero no de manera uniforme."
+                },
+                {
+                  "criterio": "Revestimiento de pisos",
+                  "detalle": "El piso aún no cuenta con acabado, solo se observa tierra y escombros."
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Instalaciones eléctricas.",
+        "terminaciones": [
+          {
+            "pregunta": "¿Los enchufes e interruptores están ubicados a la altura especificada y funcionan correctamente?",
+            "contextoIA": "Checkear si hay: tomacorrientes, luces de techo preparadas para colocar bombillas...",
+            "esObligatorio": true,
+            "numeroFotos": "1",
+            "listaTerminaciones": [
+              {
+                "event_tags": [],
+                "event_images": [],
+                "event_categories": [],
+                "event_datasets": {
+                  "link_name": "TERMINACION-01",
+                  "link_code": "TERMINACION-01",
+                  "link_url": "TERMINACION-01",
+                  "preguntas": [
+                    {
+                      "pregunta": "123"
+                    },
+                    {
+                      "pregunta": "0987654"
+                    }
+                  ]
+                },
+                "organization": {
+                  "name": "CONSTRUCTORA-EXPRESS",
+                  "objectId": "LDvX3rY30l",
+                  "code": "ldvx3ry30l",
+                  "owner": {
+                    "userId": "Y0zZSadaRw",
+                    "username": "zukozama",
+                    "email": "zuko@zama.cl"
+                  }
+                },
+                "event_id": 1737931779068,
+                "event_idtx": "1737931779068",
+                "event_name": "TERMINACION-01",
+                "event_detail": "TERMINACION-01",
+                "event_direction": "",
+                "event_type": "torre_visita",
+                "event_extra_direction": "",
+                "event_highlight": false,
+                "status": 100,
+                "location": null,
+                "event_active_date": null,
+                "event_end_date": null,
+                "createdAt": "2025-01-26T22:49:39.070Z",
+                "updatedAt": "2025-01-26T22:49:39.070Z",
+                "objectId": "CJULcxrSKR",
+                "formatAccessDate": "2025-01-26 10:49"
+              }
+            ],
+            "respuesta": {
+              "nombre": "",
+              "detalle": "Sun",
+              "listaImagenes": [
+                {
+                  "assetId": null,
+                  "base64": "",
+                  "type": "image",
+                  "fileName": "1000072698.jpg",
+                  "duration": null,
+                  "exif": null,
+                  "height": 1600,
+                  "uri": "https://thumbs.dreamstime.com/z/paredes-interiores-del-edificio-bajo-construcci%C3%B3n-87992502.jpg?ct=jpeg",
+                  "fileSize": 268441,
+                  "rotation": null,
+                  "mimeType": "image/jpeg",
+                  "width": 1200
+                }
+              ]
+            },
+            "respuestaChatGPT": {
+              "pregunta": "¿Los enchufes e interruptores están ubicados a la altura especificada y funcionan correctamente?",
+              "progreso": "INCOMPLETO",
+              "porcentaje": "30%",
+              "Observaciones": [
+                {
+                  "criterio": "Ubicación de enchufes",
+                  "detalle": "Se observan algunos enchufes instalados pero no todos están a la altura especificada."
+                },
+                {
+                  "criterio": "Funcionalidad",
+                  "detalle": "No se han verificado los enchufes y luces de techo aún."
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

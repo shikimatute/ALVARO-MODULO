@@ -1,0 +1,285 @@
+[
+  {
+    "nombre": "COCINA",
+    "caracteristicas": [
+      {
+        "nombre": "Revestimientos de paredes y pisos",
+        "terminaciones": [
+          {
+            "pregunta": "¿El material utilizado cumple con las especificaciones del proyecto?",
+            "contextoIA": "Checkear, si las paredes estan recuviertas con cemento en la superficie, y no se ven caños, ni otras irregularidades de obra que NO TENGAN que ver con el cemento, Si los pisos tienen instalado algun tipo de covertura ya sea madera, azulejos, baldozas, y simplemente recuvierto lisamente con cemento.",
+            "esObligatorio": true,
+            "numeroFotos": "1",
+            "listaTerminaciones": [
+              {
+                "event_tags": [],
+                "event_images": [],
+                "event_categories": [],
+                "event_datasets": {
+                  "link_name": "TERMINACION-01",
+                  "link_code": "TERMINACION-01",
+                  "link_url": "TERMINACION-01",
+                  "preguntas": [
+                    {
+                      "pregunta": "123"
+                    },
+                    {
+                      "pregunta": "0987654"
+                    }
+                  ]
+                },
+                "organization": {
+                  "name": "CONSTRUCTORA-EXPRESS",
+                  "objectId": "LDvX3rY30l",
+                  "code": "ldvx3ry30l",
+                  "owner": {
+                    "userId": "Y0zZSadaRw",
+                    "username": "zukozama",
+                    "email": "zuko@zama.cl"
+                  }
+                },
+                "event_id": 1737931779068,
+                "event_idtx": "1737931779068",
+                "event_name": "TERMINACION-01",
+                "event_detail": "TERMINACION-01",
+                "event_direction": "",
+                "event_type": "torre_visita",
+                "event_extra_direction": "",
+                "event_highlight": false,
+                "status": 100,
+                "location": null,
+                "event_active_date": null,
+                "event_end_date": null,
+                "createdAt": "2025-01-26T22:49:39.070Z",
+                "updatedAt": "2025-01-26T22:49:39.070Z",
+                "objectId": "CJULcxrSKR",
+                "formatAccessDate": "2025-01-26 10:49"
+              }
+            ],
+            "respuesta": {
+              "nombre": "",
+              "detalle": "Si",
+              "listaImagenes": [
+                {
+                  "assetId": null,
+                  "base64": "",
+                  "type": "image",
+                  "fileName": "1000072635.jpg",
+                  "duration": null,
+                  "exif": null,
+                  "height": 1600,
+                  "uri": "https://thumbs.dreamstime.com/z/paredes-interiores-del-edificio-bajo-construcci%C3%B3n-87992502.jpg?ct=jpeg",
+                  "fileSize": 238190,
+                  "rotation": null,
+                  "mimeType": "image/jpeg",
+                  "width": 900
+                }
+              ]
+            }
+          },
+          {
+            "pregunta": "¿Las juntas entre las baldosas están uniformes y correctamente selladas?",
+            "contextoIA": "Checkear si las baldosas estan instaladas, si tienen en lo posible su sello colocado entre espacio de baldosa y baldosa, y si esta TODO el suelo cuvierto con las mismas. Tene en cuenta unicamente la dimension de la habitacion, en caso de que veas otra habitacion ajena a la que estas analizando, no la tengas en cuenta para el criterio",
+            "esObligatorio": true,
+            "numeroFotos": "1",
+            "listaTerminaciones": [
+              {
+                "event_tags": [],
+                "event_images": [],
+                "event_categories": [],
+                "event_datasets": {
+                  "link_name": "TERMINACION-01",
+                  "link_code": "TERMINACION-01",
+                  "link_url": "TERMINACION-01",
+                  "preguntas": [
+                    {
+                      "pregunta": "123"
+                    },
+                    {
+                      "pregunta": "0987654"
+                    }
+                  ]
+                },
+                "organization": {
+                  "name": "CONSTRUCTORA-EXPRESS",
+                  "objectId": "LDvX3rY30l",
+                  "code": "ldvx3ry30l",
+                  "owner": {
+                    "userId": "Y0zZSadaRw",
+                    "username": "zukozama",
+                    "email": "zuko@zama.cl"
+                  }
+                },
+                "event_id": 1737931779068,
+                "event_idtx": "1737931779068",
+                "event_name": "TERMINACION-01",
+                "event_detail": "TERMINACION-01",
+                "event_direction": "",
+                "event_type": "torre_visita",
+                "event_extra_direction": "",
+                "event_highlight": false,
+                "status": 100,
+                "location": null,
+                "event_active_date": null,
+                "event_end_date": null,
+                "createdAt": "2025-01-26T22:49:39.070Z",
+                "updatedAt": "2025-01-26T22:49:39.070Z",
+                "objectId": "CJULcxrSKR",
+                "formatAccessDate": "2025-01-26 10:49"
+              }
+            ],
+            "respuesta": {
+              "nombre": "",
+              "detalle": "Sillon",
+              "listaImagenes": [
+                {
+                  "assetId": null,
+                  "base64": "",
+                  "type": "image",
+                  "fileName": "1000072689.jpg",
+                  "duration": null,
+                  "exif": null,
+                  "height": 960,
+                  "uri": "https://thumbs.dreamstime.com/z/paredes-interiores-del-edificio-bajo-construcci%C3%B3n-87992502.jpg?ct=jpeg",
+                  "fileSize": 221088,
+                  "rotation": null,
+                  "mimeType": "image/jpeg",
+                  "width": 1280
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "nombre": "Instalaciones eléctricas.",
+        "terminaciones": [
+          {
+            "pregunta": "¿Los enchufes e interruptores están ubicados a la altura especificada y funcionan correctamente?",
+            "contextoIA": "Checkear si hay: tomacorrientes, luces de techo preparadas para colocar bombillas de luz, en caso de que la bombilla no este, tomarlo como instalado igualmente, si hay enchufes, si hay cables de luz de colores visibles quiere decir que esta parcialmente instalado.",
+            "esObligatorio": true,
+            "numeroFotos": "1",
+            "listaTerminaciones": [
+              {
+                "event_tags": [],
+                "event_images": [],
+                "event_categories": [],
+                "event_datasets": {
+                  "link_name": "TERMINACION-01",
+                  "link_code": "TERMINACION-01",
+                  "link_url": "TERMINACION-01",
+                  "preguntas": [
+                    {
+                      "pregunta": "123"
+                    },
+                    {
+                      "pregunta": "0987654"
+                    }
+                  ]
+                },
+                "organization": {
+                  "name": "CONSTRUCTORA-EXPRESS",
+                  "objectId": "LDvX3rY30l",
+                  "code": "ldvx3ry30l",
+                  "owner": {
+                    "userId": "Y0zZSadaRw",
+                    "username": "zukozama",
+                    "email": "zuko@zama.cl"
+                  }
+                },
+                "event_id": 1737931779068,
+                "event_idtx": "1737931779068",
+                "event_name": "TERMINACION-01",
+                "event_detail": "TERMINACION-01",
+                "event_direction": "",
+                "event_type": "torre_visita",
+                "event_extra_direction": "",
+                "event_highlight": false,
+                "status": 100,
+                "location": null,
+                "event_active_date": null,
+                "event_end_date": null,
+                "createdAt": "2025-01-26T22:49:39.070Z",
+                "updatedAt": "2025-01-26T22:49:39.070Z",
+                "objectId": "CJULcxrSKR",
+                "formatAccessDate": "2025-01-26 10:49"
+              }
+            ],
+            "respuesta": {
+              "nombre": "",
+              "detalle": "Sun",
+              "listaImagenes": [
+                {
+                  "assetId": null,
+                  "base64": "",
+                  "type": "image",
+                  "fileName": "1000072698.jpg",
+                  "duration": null,
+                  "exif": null,
+                  "height": 1600,
+                  "uri": "https://thumbs.dreamstime.com/z/paredes-interiores-del-edificio-bajo-construcci%C3%B3n-87992502.jpg?ct=jpeg",
+                  "fileSize": 268441,
+                  "rotation": null,
+                  "mimeType": "image/jpeg",
+                  "width": 1200
+                }
+              ]
+            }
+          },
+          {
+            "pregunta": "¿El cableado visible está correctamente canalizado y protegido?",
+            "contextoIA": "los cables tienen la proteccion adecuada?",
+            "esObligatorio": true,
+            "numeroFotos": "1",
+            "listaTerminaciones": [
+              {
+                "event_tags": [],
+                "event_images": [],
+                "event_categories": [],
+                "event_datasets": {
+                  "link_name": "TERMINACION-01",
+                  "link_code": "TERMINACION-01",
+                  "link_url": "TERMINACION-01",
+                  "preguntas": [
+                    {
+                      "pregunta": "123"
+                    },
+                    {
+                      "pregunta": "0987654"
+                    }
+                  ]
+                },
+                "organization": {
+                  "name": "CONSTRUCTORA-EXPRESS",
+                  "objectId": "LDvX3rY30l",
+                  "code": "ldvx3ry30l",
+                  "owner": {
+                    "userId": "Y0zZSadaRw",
+                    "username": "zukozama",
+                    "email": "zuko@zama.cl"
+                  }
+                },
+                "event_id": 1737931779068,
+                "event_idtx": "1737931779068",
+                "event_name": "TERMINACION-01",
+                "event_detail": "TERMINACION-01",
+                "event_direction": "",
+                "event_type": "torre_visita",
+                "event_extra_direction": "",
+                "event_highlight": false,
+                "status": 100,
+                "location": null,
+                "event_active_date": null,
+                "event_end_date": null,
+                "createdAt": "2025-01-26T22:49:39.070Z",
+                "updatedAt": "2025-01-26T22:49:39.070Z",
+                "objectId": "CJULcxrSKR",
+                "formatAccessDate": "2025-01-26 10:49"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

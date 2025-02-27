@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "ESNext", // Puedes usar 'ESNext', 'ES2020', o 'NodeNext'
+    "target": "ES2022", // Asegúrate de que el target sea compatible
+    "esModuleInterop": true,
+    "outDir": "./dist",
+
+    /* Bundler mode */
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": false,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

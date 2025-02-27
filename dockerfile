@@ -1,0 +1,22 @@
+# Usa una imagen base oficial de Node.js
+FROM node:18
+
+# Establece el directorio de trabajo dentro del contenedor
+WORKDIR /usr/src/app
+
+# Copia el archivo package.json y package-lock.json (si existe)
+COPY package*.json ./
+
+# Instala las dependencias del proyecto
+RUN npm install
+
+# Copia el resto de los archivos de la aplicación
+COPY . .
+
+# Expone el puerto en el que tu aplicación escucha (por ejemplo, 3000)
+EXPOSE 3000
+
+WORKDIR /usr/src/app/analysis-module
+
+# Comando por defecto para iniciar la aplicación
+CMD ["npm", "start"]
