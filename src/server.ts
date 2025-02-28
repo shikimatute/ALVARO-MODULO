@@ -18,17 +18,12 @@ app.post("/api/submit", async (req, res) => {
     const data = req.body; // Asegúrate de enviar datos en formato JSON
     console.log("Datos recibidos:", data);
     if (data.event_datasets) {
+      const proyecto = data.event_datasets?.["planificacion "]?.["event_datasets"]?.["proyecto"];
       if (data.event_datasets?.["control"]) {
         if (data.event_datasets?.["control"]?.["event_datasets"]) {
           if (data.event_datasets?.["control"]?.["event_datasets"]?.["zonas"]) {
             const formulario = data.event_datasets?.["control"]?.["event_datasets"]?.["zonas"];
-            if (
-              data.event_datasets?.["control"]?.["event_datasets"]?.["planificacion "]?.["proyecto"]
-            ) {
-              const proyecto =
-                data.event_datasets?.["control"]?.["event_datasets"]?.["planificacion "]?.[
-                  "proyecto"
-                ];
+            if (proyecto) {
               await triggerAnalysis_Module(formulario, data, proyecto);
               res.status(200).json({ message: "Datos recibidos correctamente", data });
             } else {

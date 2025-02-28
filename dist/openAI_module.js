@@ -3,11 +3,10 @@ import { generateSchema, generateInstruction } from "./data_create.js";
 import openai from "openai";
 import Ajv from "ajv";
 //dotenv.config(); //for test
+export const modelGPT = "gpt-4.5-preview";
 const clientAi = new openai({
-    /*apiKey:
-      "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",
-  */
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: "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",
+    //apiKey: process.env.OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
 });
 const ajv = new Ajv();
@@ -59,9 +58,9 @@ async function askChatGPT(imageUrls, instruction) {
     try {
         console.log(imageUrls);
         const payload = {
-            model: "gpt-4o-mini",
+            model: modelGPT,
             messages: [],
-            max_tokens: 500,
+            max_tokens: 10000,
         };
         // Make an object with the instruction and the image urls
         const messages = [
@@ -87,6 +86,7 @@ async function askChatGPT(imageUrls, instruction) {
         });
         payload.messages = messages;
         const response = await clientAi.chat.completions.create(payload);
+        console.log(response);
         const content = response.choices[0].message.content;
         if (!content) {
             throw new Error("No se recibió contenido del chat.");
@@ -137,13 +137,27 @@ async function getChatResponse(imageUrls, instruction, esquemaGenerado, room) {
 async function validateJSON(content, esquemaGenerado) {
     try {
         // Eliminar las etiquetas de código antes de parsear el JSON
+        console.log("ACA ESTA EL JSON");
+        console.log("==============");
+        console.log(content);
+        console.log("==============");
+        console.log("ACA ESTA EL ESQUEMA");
+        console.log(esquemaGenerado);
+        //const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/i);
+        let jsonString;
         const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/i);
-        if (!jsonMatch) {
-            console.error("No se encontró un bloque JSON válido.");
-            throw new Error("No se encontró un bloque JSON válido.");
+        if (jsonMatch) {
+            jsonString = jsonMatch[1].trim();
+        }
+        else {
+            // Fallback: Asumir que el contenido completo es JSON y limpiar separadores comunes
+            jsonString = content
+                .split("\n")
+                .filter((line) => !line.includes("=============="))
+                .join("\n")
+                .trim();
         }
         // Parsear el JSON extraído
-        const jsonString = jsonMatch[1].trim();
         const jsonResponse = JSON.parse(jsonString); // Parseamos el JSON limpio
         // Validar el JSON con el esquema generado
         const validate = ajv.compile(esquemaGenerado);
@@ -152,7 +166,7 @@ async function validateJSON(content, esquemaGenerado) {
             console.error("El JSON no es válido. Errores de validación:", validate.errors);
             return "error";
         }
-        console.log("JSON válido:", jsonResponse);
+        console.log("JSON válido:", content);
         return jsonResponse;
     }
     catch (error) {

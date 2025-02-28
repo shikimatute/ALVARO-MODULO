@@ -91,16 +91,16 @@
             },
             "respuestaChatGPT": {
               "pregunta": "¿El material utilizado cumple con las especificaciones del proyecto?",
-              "progreso": "INCOMPLETO",
-              "porcentaje": "40%",
+              "progreso": "COMPLETO",
+              "porcentaje": "100%",
               "Observaciones": [
                 {
                   "criterio": "Revestimiento de paredes",
-                  "detalle": "Las paredes están parcialmente cubiertas con cemento, pero no de manera uniforme."
+                  "detalle": "Las paredes están completamente revestidas con cemento en la superficie, cumpliendo con las especificaciones observadas en la imagen."
                 },
                 {
-                  "criterio": "Revestimiento de pisos",
-                  "detalle": "El piso aún no cuenta con acabado, solo se observa tierra y escombros."
+                  "criterio": "Pisos",
+                  "detalle": "La superficie del piso, aunque aún sin terminaciones finales, presenta un suelo base adecuado para continuar con la instalación de revestimiento definitivo."
                 }
               ]
             }
@@ -184,15 +184,15 @@
             "respuestaChatGPT": {
               "pregunta": "¿Los enchufes e interruptores están ubicados a la altura especificada y funcionan correctamente?",
               "progreso": "INCOMPLETO",
-              "porcentaje": "30%",
+              "porcentaje": "0%",
               "Observaciones": [
                 {
-                  "criterio": "Ubicación de enchufes",
-                  "detalle": "Se observan algunos enchufes instalados pero no todos están a la altura especificada."
+                  "criterio": "tomacorrientes",
+                  "detalle": "No se observan tomacorrientes instalados en la imagen."
                 },
                 {
-                  "criterio": "Funcionalidad",
-                  "detalle": "No se han verificado los enchufes y luces de techo aún."
+                  "criterio": "luces de techo preparadas para colocar bombillas",
+                  "detalle": "No se observan preparaciones para luces de techo ni instalaciones para bombillas en la imagen."
                 }
               ]
             }
