@@ -2,11 +2,14 @@
 import { generateSchema, generateInstruction } from "./data_create.js";
 import openai from "openai";
 import Ajv from "ajv";
+// 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
 //dotenv.config(); //for test
-export const modelGPT = "gpt-4.5-preview";
+export const modelGPT = "gpt-4o-mini";
 const clientAi = new openai({
-    apiKey: "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",
-    //apiKey: process.env.OPENAI_API_KEY,
+    /*apiKey:
+      "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",
+   for test */
+    apiKey: process.env.OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
 });
 const ajv = new Ajv();
@@ -40,18 +43,17 @@ async function executeAnalysisOnRoom(objectRoom, proyecto) {
             const jsonResponse = await getChatResponse(imgs[i], instruction, schema, objectRoom.room);
             console.log("RESPUESTA NUMERO " + i + "\n" + JSON.stringify(jsonResponse, null, 2));
             jsonResponseArray.push(jsonResponse);
-            //sendDataToDataBase(jsonResponse);
-            //ACA TIENE QUE IR EL PUSH DE RESPUESTAS
-            //sendDataToServer(jsonResponse); //solo testeo
         }
-        console.log("RESPUESTA DEL JSON RESPONSE");
-        console.log("RESPUESTA DEL JSON RESPONSE");
+        // console.log("RESPUESTA DEL JSON RESPONSE"); testing
         console.log(JSON.stringify(jsonResponseArray, null, 2));
         return jsonResponseArray;
     }
     catch (error) {
         console.error("❌ Error crítico, deteniendo ejecución:", error);
-        process.exit(1); // 🔥 Mata el proceso completamente
+        const jsonError = [];
+        jsonError.push(error);
+        return jsonError;
+        //process.exit(1); // 🔥 Mata el proceso completamente
     }
 }
 async function askChatGPT(imageUrls, instruction) {
@@ -114,7 +116,8 @@ async function getChatResponse(imageUrls, instruction, esquemaGenerado, room) {
         console.error("Error en la primera ejecución:", error);
         if (errorCount >= 2) {
             console.error("❌ Se alcanzaron 2 errores, deteniendo la ejecución...");
-            process.exit(1); // 🔥 Mata el proceso completamente
+            return error;
+            //process.exit(1); // 🔥 Mata el proceso completamente
         }
         try {
             console.log("Reintentando...");
@@ -128,7 +131,8 @@ async function getChatResponse(imageUrls, instruction, esquemaGenerado, room) {
             console.error("Error en el segundo intento:", error);
             if (errorCount >= 2) {
                 console.error("❌ Se alcanzaron 2 errores, deteniendo la ejecución...");
-                process.exit(1);
+                return error;
+                //process.exit(1);
             }
             throw new Error("Error getting chat response");
         }
@@ -136,21 +140,24 @@ async function getChatResponse(imageUrls, instruction, esquemaGenerado, room) {
 }
 async function validateJSON(content, esquemaGenerado) {
     try {
-        // Eliminar las etiquetas de código antes de parsear el JSON
-        console.log("ACA ESTA EL JSON");
+        // FOR TESTING
+        /*console.log("ACA ESTA EL JSON");
         console.log("==============");
+    
         console.log(content);
         console.log("==============");
+    
         console.log("ACA ESTA EL ESQUEMA");
+        
         console.log(esquemaGenerado);
-        //const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/i);
+        */
         let jsonString;
         const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/i);
         if (jsonMatch) {
             jsonString = jsonMatch[1].trim();
         }
         else {
-            // Fallback: Asumir que el contenido completo es JSON y limpiar separadores comunes
+            // AsumiMOS que el contenido completo es JSON y limpiamos separadores comunes
             jsonString = content
                 .split("\n")
                 .filter((line) => !line.includes("=============="))

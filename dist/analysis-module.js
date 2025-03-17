@@ -1,9 +1,6 @@
 import "./config.js";
 import axios from "axios";
-import fs from "fs"; //para test
-import path from "path"; //para test
-import { fileURLToPath } from "url"; //para test
-import { extractObjectRooms } from "./data_create.js";
+import { extractObjectRooms, validateImageRooms } from "./data_create.js";
 import { analyzeAndStoreResponses } from "./openAI_module.js";
 import { modelGPT } from "./openAI_module.js";
 // type EstadoEnum = "SI" | "NO" | "PARCIALMENTE"; //Valor para chatgpt
@@ -58,18 +55,28 @@ export async function triggerAnalysis_Module(jsonValidationData, infoData, proye
     console.log("");
     const objectRoomArray = extractObjectRooms(jsonValidationData);
     const responses = await analyzeAndStoreResponses(objectRoomArray, proyecto);
-    const updatedJSON = addChatGPTResponseToJSON(jsonValidationData, objectRoomArray, responses);
-    sendDataToDataBase({
-        controlInfo: infoData,
-        analisisIA: updatedJSON,
-        modelIA: {
-            version: modelGPT,
-        },
-    });
-    const outputFilePath = path.join(__dirname, "json_resultado.json");
-    fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
-    console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", outputFilePath); //para testeo
+    const check = validateImageRooms(objectRoomArray);
+    if (check === 0) {
+        const updatedJSON = addChatGPTResponseToJSON(jsonValidationData, objectRoomArray, responses);
+        sendDataToDataBase({
+            controlInfo: infoData,
+            analisisIA: updatedJSON,
+            modelIA: {
+                version: modelGPT,
+            },
+        });
+        //const outputFilePath = path.join(__dirname, "json_resultado.json");
+        //test;
+        //fs.writeFileSync(outputFilePath, JSON.stringify(updatedJSON, null, 2), "utf-8");
+        //test;
+        //console.log("✅ JSON actualizado con respuestas de ChatGPT guardado en:", //outputFilePath); //para testeo
+    }
+    else {
+        console.error("ERROR en el envio de formato de imagenes");
+        console.error("Solo acepta JPEG, PNG");
+    }
 }
+/*
 // COMIENZO DE TESTEO
 const infoData = "test";
 const __filename = fileURLToPath(import.meta.url);
@@ -81,4 +88,6 @@ const jsonData = JSON.parse(rawData);
 const proyecto = jsonData.proyecto;
 console.log("Datos cargados desde JSON:", jsonData);
 triggerAnalysis_Module(jsonData, infoData, proyecto); // para testeo
-/// FIN DE TESTEO
+
+// FIN DE TESTEO
+*/

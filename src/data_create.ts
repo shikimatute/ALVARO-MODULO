@@ -1,6 +1,26 @@
 import { ObjectRoom } from "./interface";
 import { Schema } from "ajv";
 
+function isValidImageFormat(image: string): boolean {
+  return /\.(jpe?g|png)(\?.*)?$/i.test(image);
+}
+
+export function validateImageRooms(rooms: ObjectRoom[]): number {
+  for (const room of rooms) {
+    for (const question of room.questionObject) {
+      for (const img of question.imgs) {
+        if (!isValidImageFormat(img)) {
+          console.error(
+            `Error: La imagen "${img}" no tiene un formato válido (debe ser JPEG o PNG).`
+          );
+          return 1;
+        }
+      }
+    }
+  }
+  return 0;
+}
+
 export function extractObjectRooms(jsonData: any): ObjectRoom[] {
   if (!jsonData || jsonData.length === 0) {
     console.error("El JSON está vacío o no es válido.");

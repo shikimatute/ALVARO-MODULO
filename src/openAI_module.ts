@@ -3,14 +3,14 @@ import { generateSchema, generateInstruction } from "./data_create.js";
 import openai from "openai";
 import Ajv from "ajv";
 import { ObjectRoom } from "./interface";
-
+// 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
 //dotenv.config(); //for test
-export const modelGPT = "gpt-4.5-preview";
+export const modelGPT = "gpt-4o-mini";
 
 const clientAi = new openai({
   /*apiKey:
-    "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", */
-
+    "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",
+ for test */
   apiKey: process.env.OPENAI_API_KEY,
   dangerouslyAllowBrowser: true,
 });
@@ -70,7 +70,10 @@ async function executeAnalysisOnRoom(objectRoom: ObjectRoom, proyecto: any): Pro
     return jsonResponseArray;
   } catch (error) {
     console.error("❌ Error crítico, deteniendo ejecución:", error);
-    process.exit(1); // 🔥 Mata el proceso completamente
+    const jsonError: any[] = [];
+    jsonError.push(error);
+    return jsonError;
+    //process.exit(1); // 🔥 Mata el proceso completamente
   }
 }
 
@@ -144,7 +147,8 @@ async function getChatResponse(
 
     if (errorCount >= 2) {
       console.error("❌ Se alcanzaron 2 errores, deteniendo la ejecución...");
-      process.exit(1); // 🔥 Mata el proceso completamente
+      return error;
+      //process.exit(1); // 🔥 Mata el proceso completamente
     }
 
     try {
@@ -159,7 +163,8 @@ async function getChatResponse(
 
       if (errorCount >= 2) {
         console.error("❌ Se alcanzaron 2 errores, deteniendo la ejecución...");
-        process.exit(1);
+        return error;
+        //process.exit(1);
       }
 
       throw new Error("Error getting chat response");
