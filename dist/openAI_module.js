@@ -2,13 +2,8 @@
 import { generateSchema, generateInstruction } from "./data_create.js";
 import openai from "openai";
 import Ajv from "ajv";
-// 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
-//dotenv.config(); //for test
 export const modelGPT = "gpt-4o-mini";
 const clientAi = new openai({
-    /*apiKey:
-      "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",
-   for test */
     apiKey: process.env.OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
 });
